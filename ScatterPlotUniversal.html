@@ -3,7 +3,9 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Universal Scatterplot</title>
-		<script type="text/javascript" src="../d3/d3.js"></script>
+		<!-- <script type="text/javascript" src="../d3/d3.js"></script> -->		
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.1/d3.js"></script>
+		
 		<style type="text/css">
 		p {
 		 display: inline-block;
@@ -26,7 +28,7 @@
 	<body>
 	
 		<form>
-		  Path to file: <input type="text" value = "../../../../Desktop/CirSeqFiles/HiSeq/HiSeq_EbolaForAnalysis/CirSeqEpoNi2-2/p1/Q20Freqs_SD.txt" id="filePath" style="width: 1000px;"><br>
+		  Path to file: <input type="text" value = "../../../../Desktop/CodingPractice/d3Projects/DataForAnalysis/Practice/CoveragePractice.tsv" id="filePath" style="width: 1000px;"><br>
 		  <input type="button" value="Update Sample" id ="updatePathButton">
 		  <br>
 		  Column number containing x-axis data: <input type="number" value=0 id="xColumn"><br>
