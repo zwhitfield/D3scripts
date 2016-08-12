@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Universal Scatterplot</title>
+		<script type="text/javascript" src="../d3/d3.js"></script>
+		<style type="text/css">
+		p {
+		 display: inline-block;
+		}
+		
+		.axis path,
+		.axis line {
+			fill: none;
+			stroke: black;
+			shape-rendering: crispEdges;
+		}
+		
+		.axis text {
+			font-family: sans-serif;
+			font-size: 11px;
+		}
+
+		</style>
+	</head>
+	<body>
+	
+		<form>
+		  Path to file: <input type="text" value = "../../../../Desktop/CirSeqFiles/HiSeq/HiSeq_EbolaForAnalysis/CirSeqEpoNi2-2/p1/Q20Freqs_SD.txt" id="filePath" style="width: 1000px;"><br>
+		  <input type="button" value="Update Sample" id ="updatePathButton">
+		  <br>
+		  Column number containing x-axis data: <input type="number" value=0 id="xColumn"><br>
+		  Column number containing y-axis data: <input type="number" value=3 id="yColumn"><br>
+		  <br>
+		  Lower X boundry: <input type="number" value=500 id="minX"><br>
+		  Upper X boundry: <input type="number" value=1000 id="maxX">
+		  <br>
+		  Lower Y boundry: <input type="number" value=1 id="minY"><br>
+		  Upper Y boundry: <input type="number" value=10000 id="maxY"><br>
+		  <br>
+		  Type of Y axis("log" or "linear"; without quotes,case sensitive): <input type="text" value="log" id="yType"><br>
+		  <input type="button" value="Update Axes" id ="updateAxesButton">
+		</form>
+		<br>
+		<script type="text/javascript">
+
+			//Width and height
+			var w = 1250;
+			var h = 500;
+			var padding = 80;
+			
+			var xAxis = d3.svg.axis()
+			var yAxis = d3.svg.axis()
+			
+			var svg = d3.select("body")
+				.append("svg")
+				.attr("width", w)
+				.attr("height", h);			
+			//Create X axis
+			svg.append("g")
+				.attr("class", "x axis")
+				.attr("transform", "translate(0," + (h - padding) + ")")
+				.call(xAxis);
+
+			//Label x-Axis
+			svg.append("text")
+				.attr("class", "xAxisLabel")
+				.attr("y", h-padding/2)
+				.attr("x",w/2)
+				.style("text-anchor", "middle")
+				.text("xAxisLabel");
+
+			//Create Y axis
+			svg.append("g")
+				.attr("class", "y axis")
+				.attr("transform", "translate(" + padding + ",0)")
+				.call(yAxis);
+
+			//Label y-Axis
+			svg.append("text")
+				.attr("class", "yAxisLabel")
+				.attr("transform", "rotate(-90)")
+				.attr("y", padding/2)
+				.attr("x", 0-h/2)
+				.style("text-anchor", "middle")
+				.text("yAxisLabel");
+				
+			//Add Title
+			svg.append("text")
+				.attr("class", "HEADER")
+				.attr("y", padding/2)
+				.attr("x",w/2)
+				.style("text-anchor", "middle")
+				.text("Title");
+//--------------------------------------------------------------------------------------------------
+         d3.select("#updateAxesButton")
+				.on("click", function() {
+					var filePath = d3.select("#filePath").property("value")
+				
+					svg.selectAll("circle")
+						.remove()
+
+					var xColumnNumber= d3.select("#xColumn").property("value")
+					var yColumnNumber = d3.select("#yColumn").property("value")
+					
+					var lowerXBoundry= d3.select("#minX").property("value")
+					var upperXBoundry = d3.select("#maxX").property("value")
+					
+					var lowerYBoundry = d3.select("#minY").property("value")
+					var upperYBoundry = d3.select("#maxY").property("value")
+					
+					var yAxisType = d3.select("#yType").property("value")
+            
+					var xScale=d3.scale.linear()
+					
+					if (yAxisType == "log") {
+						var yScale=d3.scale.log();	
+					}
+					
+					if (yAxisType == "linear") {
+						var yScale=d3.scale.linear();	
+					}
+					
+
+					d3.tsv(filePath, function(d) {
+						data = d;
+						var headerNames = d3.keys(data[0])
+						console.log(headerNames)
+						var xColumnHeader = headerNames[xColumnNumber]
+						var yColumnHeader = headerNames[yColumnNumber]
+						
+						var beenClicked = 0
+						
+						data.forEach(function(d) {
+							d[xColumnHeader] = +d[xColumnHeader]
+							d[yColumnHeader] = +d[yColumnHeader];
+						});
+						
+						
+						var positions = data.map(function(a) {
+							return a[xColumnHeader];
+						});
+														
+						data=data.filter(function(d) {
+							return (d[xColumnHeader] >= lowerXBoundry && d[xColumnHeader]<=upperXBoundry);
+						});
+						
+						data.forEach(function(d) {
+							if(isNaN(d[yColumnHeader]) || isNaN(d[xColumnHeader])){
+            				d[xColumnHeader] = upperXBoundry + 1
+            				d[yColumnHeader] = upperYBoundry + 1
+            				}
+						});
+											
+						
+						xScale.domain([lowerXBoundry, upperXBoundry])
+							.range([padding, w - padding]);
+		
+						yScale.domain([lowerYBoundry, upperYBoundry])
+							.range([h - padding, padding]);
+			
+						//Define X axis
+						xAxis.scale(xScale)
+							.orient("bottom")
+							.ticks(5)
+						//Define Y axis
+						yAxis.scale(yScale)
+							.orient("left")
+							.ticks(5)
+		
+						//Create points
+						svg.selectAll("circle")
+						   .data(data)
+						   .enter()
+						   .append("circle")
+						   .attr("cx", function(d) {
+						   		return xScale(d[xColumnHeader]);
+						   })
+						   .attr("cy", function(d) {
+									return yScale(d[yColumnHeader]);
+						   })
+						   .attr("r", 5)
+						   .on("mouseover", function() {
+						   	d3.select(this).attr("fill", "orange");			
+						   })
+						   .on("mouseout", function() {
+						   	d3.select(this).attr("fill", "black");
+						   })
+						   .append("title")
+						   .text(function(d) {
+//								return (xColumnHeader + ": " + d[xColumnHeader] + ", " + yColumnHeader + ": " + d[yColumnHeader]);
+								return (d3.keys(d).join("   ") + "\n" + d3.values(d).join("   "))
+						   });
+		
+						//Create X axis
+						svg.select(".x.axis")
+							.call(xAxis);
+							
+						//Label x-Axis
+						svg.select(".xAxisLabel")
+							.text(xColumnHeader);
+
+						//Create Y axis
+						svg.select(".y.axis")
+							.call(yAxis);
+							
+						//Label y-Axis
+						svg.select(".yAxisLabel")
+							.text(yColumnHeader);
+		
+						//Add Title
+						svg.select(".HEADER")
+							.text(xColumnHeader + " vs. " + yColumnHeader);
+						});
+						
+					});
+//--------------------------------------------------------------------------------------------------
+         d3.select("#updatePathButton")
+				.on("click", function() {
+					var filePath = d3.select("#filePath").property("value")
+					
+					var xColumnNumber= d3.select("#xColumn").property("value")
+					var yColumnNumber = d3.select("#yColumn").property("value")
+				
+
+					var lowerXBoundry= d3.select("#minX").property("value")
+					var upperXBoundry = d3.select("#maxX").property("value")
+					
+					var lowerYBoundry = d3.select("#minY").property("value")
+					var upperYBoundry = d3.select("#maxY").property("value")
+					
+					var yAxisType = d3.select("#yType").property("value")
+            
+					var xScale=d3.scale.linear()
+					
+					if (yAxisType == "log") {
+						var yScale=d3.scale.log();	
+					}
+					
+					if (yAxisType == "linear") {
+						var yScale=d3.scale.linear();	
+					}
+					
+
+					d3.tsv(filePath, function(d) {
+						data = d;
+						var headerNames = d3.keys(data[0])
+						console.log(headerNames)
+						var xColumnHeader = headerNames[xColumnNumber]
+						var yColumnHeader = headerNames[yColumnNumber]
+												
+						data.forEach(function(d) {
+							d[xColumnHeader] = +d[xColumnHeader]
+							d[yColumnHeader] = +d[yColumnHeader];
+						});
+						
+						
+						var positions = data.map(function(a) {
+							return a[xColumnHeader];
+						});
+														
+						data=data.filter(function(d) {
+							return (d[xColumnHeader] >= lowerXBoundry && d[xColumnHeader]<=upperXBoundry);
+						});
+		
+						xScale.domain([lowerXBoundry, upperXBoundry])
+							.range([padding, w - padding]);
+		
+						yScale.domain([lowerYBoundry, upperYBoundry])
+							.range([h - padding, padding]);
+			
+						//Define X axis
+						xAxis.scale(xScale)
+							.orient("bottom")
+							.ticks(5)
+						//Define Y axis
+						yAxis.scale(yScale)
+							.orient("left")
+							.ticks(5)
+						
+						svg.selectAll(".popup")
+							.remove()
+
+						//Create points
+						svg.selectAll("circle")
+						   .data(data)
+						   .transition()
+//							.delay(function(d,i) {
+//								return i*2;
+//							 })
+						   .duration(500)
+						   .attr("cx", function(d) {
+						   		return xScale(d[xColumnHeader]);
+						   })
+						   .attr("cy", function(d) {
+									return yScale(d[yColumnHeader]);
+						   })
+						   .attr("r", 5)
+						   .on("mouseover", function() {
+						   	d3.select(this).attr("fill", "orange");			
+						   })
+						   .on("mouseout", function() {
+						   	d3.select(this).attr("fill", "black");
+						   })
+						 	.select("title")
+						   .text(function(d) {
+//								return (xColumnHeader + ": " + d[xColumnHeader] + ", " + yColumnHeader + ": " + d[yColumnHeader]);
+								return (d3.keys(d).join("   ") + "\n" + d3.values(d).join("   "))
+						   });
+		
+						//Create X axis
+						svg.select(".x.axis")
+							.call(xAxis);
+				
+						//Create Y axis
+						svg.select(".y.axis")
+							.call(yAxis);
+		
+						//Add Title
+						svg.select(".HEADER")
+							.text(xColumnHeader + " vs. " + yColumnHeader);
+						});
+
+					});
+//--------------------------------------------------------------------------------------------------
+		</script>
+	</body>
+</html>
