@@ -27,17 +27,17 @@
 	<body>
 	
 		<form>
-		  Path to file: <input type="text" value = "../../../../Desktop/CodingPractice/d3Projects/DataForAnalysis/Practice/CoveragePractice.tsv" id="filePath" style="width: 1000px;"><br>
+		  Path to file (keep '/' at the beginning): <input type="text" value = "/Path/To/Datafile/From/Local/Server.tsv" id="filePath" style="width: 1000px;"><br>
 		  <input type="button" value="Update Sample" id ="updatePathButton">
 		  <br>
 		  Column number containing x-axis data: <input type="number" value=0 id="xColumn"><br>
-		  Column number containing y-axis data: <input type="number" value=3 id="yColumn"><br>
+		  Column number containing y-axis data: <input type="number" value=1 id="yColumn"><br>
 		  <br>
 		  Lower X boundry: <input type="number" value=500 id="minX"><br>
 		  Upper X boundry: <input type="number" value=1000 id="maxX">
 		  <br>
 		  Lower Y boundry: <input type="number" value=1 id="minY"><br>
-		  Upper Y boundry: <input type="number" value=10000 id="maxY"><br>
+		  Upper Y boundry: <input type="number" value=100000 id="maxY"><br>
 		  <br>
 		  Type of Y axis("log" or "linear"; without quotes,case sensitive): <input type="text" value="log" id="yType"><br>
 		  <input type="button" value="Update Axes" id ="updateAxesButton">
@@ -181,16 +181,16 @@
 									return yScale(d[yColumnHeader]);
 						   })
 						   .attr("r", 5)
-						   .on("mouseover", function() {
+						   .on("mouseover", function(d) {
 						   	d3.select(this).attr("fill", "orange");			
 						   })
-						   .on("mouseout", function() {
+						   .on("mouseout", function(d) {
 						   	d3.select(this).attr("fill", "black");
 						   })
 						   .append("title")
 						   .text(function(d) {
 //								return (xColumnHeader + ": " + d[xColumnHeader] + ", " + yColumnHeader + ": " + d[yColumnHeader]);
-								return (d3.keys(d).join("   ") + "\n" + d3.values(d).join("   "))
+								return (d3.keys(d).join("   ") + "\n" + d3.values(d).join("   "));
 						   });
 		
 						//Create X axis
@@ -279,12 +279,15 @@
 							.orient("left")
 							.ticks(5)
 						
-						svg.selectAll(".popup")
-							.remove()
-
 						//Create points
 						svg.selectAll("circle")
 						   .data(data)
+						   .on("mouseover", function(d) {
+						   	d3.select(this).attr("fill", "orange");			
+						   })
+						   .on("mouseout", function(d) {
+						   	d3.select(this).attr("fill", "black");
+						   })
 						   .transition()
 //							.delay(function(d,i) {
 //								return i*2;
@@ -297,16 +300,10 @@
 									return yScale(d[yColumnHeader]);
 						   })
 						   .attr("r", 5)
-						   .on("mouseover", function() {
-						   	d3.select(this).attr("fill", "orange");			
-						   })
-						   .on("mouseout", function() {
-						   	d3.select(this).attr("fill", "black");
-						   })
-						 	.select("title")
+						   .select("title")
 						   .text(function(d) {
 //								return (xColumnHeader + ": " + d[xColumnHeader] + ", " + yColumnHeader + ": " + d[yColumnHeader]);
-								return (d3.keys(d).join("   ") + "\n" + d3.values(d).join("   "))
+								return (d3.keys(d).join("   ") + "\n" + d3.values(d).join("   "));
 						   });
 		
 						//Create X axis
