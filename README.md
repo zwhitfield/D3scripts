@@ -43,6 +43,8 @@ To use ScatterplotUniversal.html (Requires python):
 
 5. Click Update Axes
 	- This will create a graph with the specifications that were entered
+	- Use Max Values
+		- If this is checked, values entered in Lower and Upper X/Y boundry boxes will be ignored. Instead, the maximum and minimum X 			and Y values (for the entire dataset) will be calculated and used instead.
 
 6. Update Sample button
 	- Use this to keep the specifications in the boxes, but update the sample to be plotted by changing the file path to another sample.
