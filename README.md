@@ -2,7 +2,7 @@
 
 This is my attempt to create an interactive scatterplot script using D3js
 
-To use ScatterplotUniversal.html (Requires python):
+To use ScatterplotUniversal.html (Requires python for step 2):
 
 1. Save ScatterplotUniversal.html to a location of your choosing.
 2. Start running a local server on your machine. 

@@ -4,6 +4,7 @@
 		<meta charset="utf-8">
 		<title>Universal Scatterplot</title>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.1/d3.js"></script>
+		<script type="text/javascript" src="../d3/d3.js"></script>
 		
 		<style type="text/css">
 		p {
@@ -94,6 +95,15 @@
 				.attr("x",w/2)
 				.style("text-anchor", "middle")
 				.text("Title");
+				
+			svg.append("clipPath")
+				 .attr("id", "chart-area")
+				 .append("rect")
+				 .attr("x", padding)
+				 .attr("y", padding)
+				 .attr("width", w-2*padding)
+				 .attr("height", h-2*padding);
+
 //--------------------------------------------------------------------------------------------------
          d3.select("#updateAxesButton")
 				.on("click", function() {
@@ -177,9 +187,12 @@
 						yAxis.scale(yScale)
 							.orient("left")
 							.ticks(5)
-		
+							
 						//Create points
-						svg.selectAll("circle")
+						svg.append("g")
+							.attr("id" , "circles")
+				   		.attr("clip-path", "url(#chart-area)")
+							.selectAll("circle")
 						   .data(data)
 						   .enter()
 						   .append("circle")
@@ -289,7 +302,9 @@
 							.ticks(5)
 						
 						//Create points
-						svg.selectAll("circle")
+						svg.selectAll("#circles")
+				   		.attr("clip-path", "url(#chart-area)")
+							.selectAll("circle")
 						   .data(data)
 						   .on("mouseover", function(d) {
 						   	d3.select(this).attr("fill", "orange");			
