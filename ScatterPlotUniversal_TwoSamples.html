@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Universal Scatterplot-Two Separate Samples</title>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.1/d3.js"></script>
+		<script type="text/javascript" src="../d3/d3.js"></script>
+		
+		<style type="text/css">
+		p {
+		 display: inline-block;
+		}
+		
+		.axis path,
+		.axis line {
+			fill: none;
+			stroke: black;
+			shape-rendering: crispEdges;
+		}
+		
+		.axis text {
+			font-family: sans-serif;
+			font-size: 11px;
+		}
+
+		</style>
+	</head>
+	<body>
+	
+		<form>
+		  Path to x-axis file (keep '/' at the beginning): <input type="text" value = "/Desktop/CodingPractice/d3Projects/DataForAnalysis/Practice/CoveragePractice.tsv" id="filePathX" style="width: 1000px;">
+		  <br>
+		  Path to y-axis file (keep '/' at the beginning): <input type="text" value = "/Desktop/CodingPractice/d3Projects/DataForAnalysis/Practice/CoveragePractice_2.tsv" id="filePathY" style="width: 1000px;">
+		  <br>
+		  <input type="button" value="Update Samples" id ="updatePathButton">
+		  <br>
+		  Column number containing x-axis data: <input type="number" value=1 id="xColumn"><br>
+		  Column number containing y-axis data: <input type="number" value=1 id="yColumn"><br>
+		  <br>
+		  Lower X boundry: <input type="number" value=1 id="minX"><br>
+		  Upper X boundry: <input type="number" value=100000 id="maxX">
+		  <br>
+		  Lower Y boundry: <input type="number" value=1 id="minY"><br>
+		  Upper Y boundry: <input type="number" value=100000 id="maxY"><br>
+		  <br>
+		  Type of X axis("log" or "linear"; without quotes,case sensitive): <input type="text" value="log" id="xType"><br>
+		  Type of Y axis("log" or "linear"; without quotes,case sensitive): <input type="text" value="log" id="yType"><br>
+		  <input type="button" value="Update Axes" id ="updateAxesButton">
+		  Use Max Values <input type="checkbox" id = "UseMaxValues">
+		</form>
+		<br>
+		<script type="text/javascript">
+
+			//Width and height
+			var w = 1250;
+			var h = 800;
+			var padding = 40;
+			
+			var xAxis = d3.svg.axis()
+			var yAxis = d3.svg.axis()
+			
+			var xScale
+			var yScale
+			
+			var xColumnHeader
+			var yColumnHeader
+			
+			var xValues
+			var yValues
+			var lowerXBoundry
+			var upperXBoundry
+			var lowerYBoundry
+			var upperYBoundry
+			
+			var svg = d3.select("body")
+				.append("svg")
+				.attr("width", w)
+				.attr("height", h);			
+			//Create X axis
+			svg.append("g")
+				.attr("class", "x axis")
+				.attr("transform", "translate(0," + (h - padding) + ")")
+				.call(xAxis);
+
+			//Label x-Axis
+			svg.append("text")
+				.attr("class", "xAxisLabel")
+				.attr("y", h-padding/2)
+				.attr("x",w/2)
+				.style("text-anchor", "middle")
+				.text("xAxisLabel");
+
+			//Create Y axis
+			svg.append("g")
+				.attr("class", "y axis")
+				.attr("transform", "translate(" + padding + ",0)")
+				.call(yAxis);
+
+			//Label y-Axis
+			svg.append("text")
+				.attr("class", "yAxisLabel")
+				.attr("transform", "rotate(-90)")
+				.attr("y", padding/2)
+				.attr("x", 0-h/2)
+				.style("text-anchor", "middle")
+				.text("yAxisLabel");
+				
+			//Add Title
+			svg.append("text")
+				.attr("class", "HEADER")
+				.attr("y", padding/2)
+				.attr("x",w/2)
+				.style("text-anchor", "middle")
+				.text("Title");
+				
+			svg.append("clipPath")
+				 .attr("id", "chart-area")
+				 .append("rect")
+				 .attr("x", padding)
+				 .attr("y", padding)
+				 .attr("width", w-2*padding)
+				 .attr("height", h-2*padding);
+				 
+			var visualizeXY = function() {
+				var data = []
+				
+				svg.selectAll("circle")
+					.remove()
+
+				for (var i = 0; i < xValues.length; i++) {
+				    data.push({
+				        xV: xValues[i],
+				        yV: yValues[i]
+				    });
+				}
+				console.log(data)
+				if (d3.select("#UseMaxValues").property("checked") == false) {
+					console.log("Using Input X and Y Values")				
+					data=data.filter(function(d) {
+						return (d.xV >= lowerXBoundry && d.xV<=upperXBoundry);
+					});
+				}
+				console.log(data)	
+				if (d3.select("#UseMaxValues").property("checked") == true) {
+					console.log("Using Max Values")
+					
+					//var xValues = data.map(function(a) {
+					//	return a[xColumnHeader];
+					//});
+					//var yValues = data.map(function(a) {
+					//	return a[yColumnHeader];
+					//});
+					lowerXBoundry = d3.min(xValues)
+					upperXBoundry = d3.max(xValues)
+					lowerYBoundry = d3.min(yValues)
+					upperYBoundry = d3.max(yValues)
+				}
+				xScale.domain([lowerXBoundry, upperXBoundry])
+					.range([padding, w - padding]);
+
+				yScale.domain([lowerYBoundry, upperYBoundry])
+					.range([h - padding, padding]);
+	
+				//Define X axis
+				xAxis.scale(xScale)
+					.orient("bottom")
+					.ticks(5)
+				//Define Y axis
+				yAxis.scale(yScale)
+					.orient("left")
+					.ticks(5)
+					
+				//Create points
+				svg.append("g")
+					.attr("id" , "circles")
+		   		.attr("clip-path", "url(#chart-area)")
+					.selectAll("circle")
+				   .data(data)
+				   .enter()
+				   .append("circle")
+				   .attr("cx", function(d) {
+				   		return xScale(d.xV);
+				   })
+				   .attr("cy", function(d) {
+							return yScale(d.yV);
+				   })
+				   .attr("r", 3)
+				   .on("mouseover", function(d) {
+				   	d3.select(this).attr("fill", "orange");			
+				   })
+				   .on("mouseout", function(d) {
+				   	d3.select(this).attr("fill", "black");
+				   })
+				   .append("title")
+				   .text(function(d) {
+//								return (xColumnHeader + ": " + d[xColumnHeader] + ", " + yColumnHeader + ": " + d[yColumnHeader]);
+						return (d3.keys(d).join("   ") + "\n" + d3.values(d).join("   "));
+				   });
+
+				//Create X axis
+				svg.select(".x.axis")
+					.call(xAxis);
+					
+				//Label x-Axis
+				svg.select(".xAxisLabel")
+					.text(xColumnHeader);
+
+				//Create Y axis
+				svg.select(".y.axis")
+					.call(yAxis);
+					
+				//Label y-Axis
+				svg.select(".yAxisLabel")
+					.text(yColumnHeader);
+
+				//Add Title
+				svg.select(".HEADER")
+					.text(xColumnHeader + " vs. " + yColumnHeader);
+				};
+
+			var updateXY = function() {
+				var data = []
+				
+				for (var i = 0; i < xValues.length; i++) {
+				    data.push({
+				        xV: xValues[i],
+				        yV: yValues[i]
+				    });
+				}
+				if (d3.select("#UseMaxValues").property("checked") == false) {
+					console.log("Using Input X and Y Values")				
+					data=data.filter(function(d) {
+						return (d.xV >= lowerXBoundry && d.xV<=upperXBoundry);
+					});
+				}
+	
+				//Create points
+				svg.selectAll("#circles")
+		   		.attr("clip-path", "url(#chart-area)")
+					.selectAll("circle")
+				   .data(data)
+				   .on("mouseover", function(d) {
+				   	d3.select(this).attr("fill", "orange");			
+				   })
+				   .on("mouseout", function(d) {
+				   	d3.select(this).attr("fill", "black");
+				   })
+				   .transition()
+//							.delay(function(d,i) {
+//								return i*2;
+//							 })
+				   .duration(500)
+				   .attr("cx", function(d) {
+				   		return xScale(d.xV);
+				   })
+				   .attr("cy", function(d) {
+							return yScale(d.yV);
+				   })
+				   .attr("r", 3)
+				   .select("title")
+				   .text(function(d) {
+//								return (xColumnHeader + ": " + d[xColumnHeader] + ", " + yColumnHeader + ": " + d[yColumnHeader]);
+						return (d3.keys(d).join("   ") + "\n" + d3.values(d).join("   "));
+				   });
+				};
+
+//--------------------------------------------------------------------------------------------------
+         d3.select("#updateAxesButton")
+				.on("click", function() {
+					var filePathX = d3.select("#filePathX").property("value")
+					var filePathY = d3.select("#filePathY").property("value")
+				
+					var xColumnNumber= d3.select("#xColumn").property("value")
+					var yColumnNumber = d3.select("#yColumn").property("value")
+					
+					lowerXBoundry= d3.select("#minX").property("value")
+					upperXBoundry = d3.select("#maxX").property("value")
+					
+					lowerYBoundry = d3.select("#minY").property("value")
+					upperYBoundry = d3.select("#maxY").property("value")
+					
+					var xAxisType = d3.select("#xType").property("value")
+					var yAxisType = d3.select("#yType").property("value")
+                        						
+					if (xAxisType == "log") {
+						xScale=d3.scale.log();	
+					}
+					
+					if (xAxisType == "linear") {
+						xScale=d3.scale.linear();	
+					}
+					
+					if (yAxisType == "log") {
+						yScale=d3.scale.log();	
+					}
+					
+					if (yAxisType == "linear") {
+						yScale=d3.scale.linear();	
+					}
+										
+					
+					d3.tsv(filePathX, function(d) {
+						var headerNames = d3.keys(d[0])
+						console.log(headerNames)
+						xColumnHeader = headerNames[xColumnNumber]
+												
+						d.forEach(function(d) {
+							d[xColumnHeader] = +d[xColumnHeader]
+						});
+						xValues = d.map(function(a) {
+							return a[xColumnHeader];
+						});
+						d3.tsv(filePathY, function(d) {
+							var headerNames = d3.keys(d[0])
+							console.log(headerNames)
+							yColumnHeader = headerNames[yColumnNumber]
+													
+							d.forEach(function(d) {
+								d[yColumnHeader] = +d[yColumnHeader]
+							});
+							yValues = d.map(function(a) {
+								return a[yColumnHeader];
+							});
+							console.log(xValues)
+							console.log(yValues)
+							visualizeXY();
+						});
+					
+					});
+											
+				});				
+//--------------------------------------------------------------------------------------------------
+         d3.select("#updatePathButton")
+				.on("click", function() {
+					var filePathX = d3.select("#filePathX").property("value")
+					var filePathY = d3.select("#filePathY").property("value")
+				
+					var xColumnNumber= d3.select("#xColumn").property("value")
+					var yColumnNumber = d3.select("#yColumn").property("value")
+
+					d3.tsv(filePathX, function(d) {
+						var headerNames = d3.keys(d[0])
+						console.log(headerNames)
+						xColumnHeader = headerNames[xColumnNumber]
+												
+						d.forEach(function(d) {
+							d[xColumnHeader] = +d[xColumnHeader]
+						});
+						xValues = d.map(function(a) {
+							return a[xColumnHeader];
+						});
+						d3.tsv(filePathY, function(d) {
+							var headerNames = d3.keys(d[0])
+							console.log(headerNames)
+							yColumnHeader = headerNames[yColumnNumber]
+													
+							d.forEach(function(d) {
+								d[yColumnHeader] = +d[yColumnHeader]
+							});
+							yValues = d.map(function(a) {
+								return a[yColumnHeader];
+							});
+							console.log(xValues)
+							console.log(yValues)
+							updateXY();
+						});
+
+					});
+				});
+//--------------------------------------------------------------------------------------------------
+		</script>
+	</body>
+</html>
