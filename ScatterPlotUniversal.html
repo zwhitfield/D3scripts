@@ -40,6 +40,7 @@
 		  Lower Y boundry: <input type="number" value=1 id="minY"><br>
 		  Upper Y boundry: <input type="number" value=100000 id="maxY"><br>
 		  <br>
+		  Type of X axis("log" or "linear"; without quotes,case sensitive): <input type="text" value="log" id="xType"><br>
 		  Type of Y axis("log" or "linear"; without quotes,case sensitive): <input type="text" value="log" id="yType"><br>
 		  <input type="button" value="Update Axes" id ="updateAxesButton">
 		  Use Max Values <input type="checkbox" id = "UseMaxValues">
@@ -48,8 +49,8 @@
 		<script type="text/javascript">
 
 			//Width and height
-			var w = 1250;
-			var h = 500;
+			var w = 800;
+			var h = 900;
 			var padding = 80;
 			
 			var xAxis = d3.svg.axis()
@@ -121,16 +122,23 @@
 					var lowerYBoundry = d3.select("#minY").property("value")
 					var upperYBoundry = d3.select("#maxY").property("value")
 					
+					var xAxisType = d3.select("#xType").property("value")
 					var yAxisType = d3.select("#yType").property("value")
-                        	
-					var xScale=d3.scale.linear()
+                        						
+					if (xAxisType == "log") {
+						xScale=d3.scale.log();	
+					}
+					
+					if (xAxisType == "linear") {
+						xScale=d3.scale.linear();	
+					}
 					
 					if (yAxisType == "log") {
-						var yScale=d3.scale.log();	
+						yScale=d3.scale.log();	
 					}
 					
 					if (yAxisType == "linear") {
-						var yScale=d3.scale.linear();	
+						yScale=d3.scale.linear();	
 					}
 					
 
