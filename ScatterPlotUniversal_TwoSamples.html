@@ -54,7 +54,7 @@
 			//Width and height
 			var w = 1250;
 			var h = 800;
-			var padding = 40;
+			var padding = 80;
 			
 			var xAxis = d3.svg.axis()
 			var yAxis = d3.svg.axis()
@@ -71,6 +71,9 @@
 			var upperXBoundry
 			var lowerYBoundry
 			var upperYBoundry
+			
+			var sampePathAllData
+			var matchTest = 0
 			
 			var svg = d3.select("body")
 				.append("svg")
@@ -129,6 +132,7 @@
 
 				for (var i = 0; i < xValues.length; i++) {
 				    data.push({
+				    	  key: i,
 				        xV: xValues[i],
 				        yV: yValues[i]
 				    });
@@ -175,7 +179,7 @@
 					.attr("id" , "circles")
 		   		.attr("clip-path", "url(#chart-area)")
 					.selectAll("circle")
-				   .data(data)
+				   .data(data,key)
 				   .enter()
 				   .append("circle")
 				   .attr("cx", function(d) {
@@ -193,8 +197,7 @@
 				   })
 				   .append("title")
 				   .text(function(d) {
-//								return (xColumnHeader + ": " + d[xColumnHeader] + ", " + yColumnHeader + ": " + d[yColumnHeader]);
-						return (d3.keys(d).join("   ") + "\n" + d3.values(d).join("   "));
+							return (xColumnHeader + ": " + d.xV + ", " + yColumnHeader + ": " + d.yV);
 				   });
 
 				//Create X axis
@@ -223,6 +226,7 @@
 				
 				for (var i = 0; i < xValues.length; i++) {
 				    data.push({
+						  key: i,
 				        xV: xValues[i],
 				        yV: yValues[i]
 				    });
@@ -238,7 +242,7 @@
 				svg.selectAll("#circles")
 		   		.attr("clip-path", "url(#chart-area)")
 					.selectAll("circle")
-				   .data(data)
+				   .data(data,key)
 				   .on("mouseover", function(d) {
 				   	d3.select(this).attr("fill", "orange");			
 				   })
@@ -249,7 +253,7 @@
 //							.delay(function(d,i) {
 //								return i*2;
 //							 })
-				   .duration(500)
+				   .duration(1500)
 				   .attr("cx", function(d) {
 				   		return xScale(d.xV);
 				   })
@@ -263,7 +267,9 @@
 						return (d3.keys(d).join("   ") + "\n" + d3.values(d).join("   "));
 				   });
 				};
-
+			var key = function(d) {
+				return d.key;			
+			}
 //--------------------------------------------------------------------------------------------------
          d3.select("#updateAxesButton")
 				.on("click", function() {
@@ -321,11 +327,10 @@
 							yValues = d.map(function(a) {
 								return a[yColumnHeader];
 							});
-							console.log(xValues)
-							console.log(yValues)
+//							console.log(xValues)
+//							console.log(yValues)
 							visualizeXY();
 						});
-					
 					});
 											
 				});				
@@ -360,8 +365,8 @@
 							yValues = d.map(function(a) {
 								return a[yColumnHeader];
 							});
-							console.log(xValues)
-							console.log(yValues)
+//							console.log(xValues)
+//							console.log(yValues)
 							updateXY();
 						});
 
