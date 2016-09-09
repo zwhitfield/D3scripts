@@ -31,20 +31,24 @@
 		  Path to x-axis file (keep '/' at the beginning): <input type="text" value = "/Desktop/CodingPractice/d3Projects/DataForAnalysis/Practice/CoveragePractice.tsv" id="filePathX" style="width: 1000px;">
 		  <br>
 		  Path to y-axis file (keep '/' at the beginning): <input type="text" value = "/Desktop/CodingPractice/d3Projects/DataForAnalysis/Practice/CoveragePractice_2.tsv" id="filePathY" style="width: 1000px;">
-		  <br>
 		  <input type="button" value="Update Samples" id ="updatePathButton">
 		  <br>
 		  Column number containing x-axis data: <input type="number" value=1 id="xColumn"><br>
 		  Column number containing y-axis data: <input type="number" value=1 id="yColumn"><br>
-		  <br>
 		  Lower X boundry: <input type="number" value=1 id="minX"><br>
-		  Upper X boundry: <input type="number" value=100000 id="maxX">
-		  <br>
+		  Upper X boundry: <input type="number" value=100000 id="maxX"><br>
 		  Lower Y boundry: <input type="number" value=1 id="minY"><br>
 		  Upper Y boundry: <input type="number" value=100000 id="maxY"><br>
-		  <br>
-		  Type of X axis("log" or "linear"; without quotes,case sensitive): <input type="text" value="log" id="xType"><br>
-		  Type of Y axis("log" or "linear"; without quotes,case sensitive): <input type="text" value="log" id="yType"><br>
+		  Type of X axis:
+		  <select id="xType">
+		    <option value="linear" selected>linear</option>
+		    <option value="log">log</option>
+		  </select><br>
+		  Type of Y axis:
+		  <select id="yType">
+		    <option value="linear">linear</option>
+		    <option value="log" selected>log</option>
+		  </select>
 		  <input type="button" value="Update Axes" id ="updateAxesButton">
 		  Use Max Values <input type="checkbox" id = "UseMaxValues">
 		</form>
@@ -52,8 +56,8 @@
 		<script type="text/javascript">
 
 			//Width and height
-			var w = 1250;
-			var h = 800;
+			var w = 600;
+			var h = 600;
 			var padding = 80;
 			
 			var xAxis = d3.svg.axis()

@@ -29,20 +29,26 @@
 	
 		<form>
 		  Path to file (keep '/' at the beginning): <input type="text" value = "/Desktop/CodingPractice/d3Projects/DataForAnalysis/Practice/CoveragePractice.tsv" id="filePath" style="width: 1000px;">
-		  <br>
 		  <input type="button" value="Update Samples" id ="updatePathButton">
 		  <br>
 		  Column number containing x-axis data: <input type="number" value=0 id="xColumn"><br>
 		  Column number containing y-axis data: <input type="number" value=1 id="yColumn"><br>
-		  <br>
 		  Lower X boundry: <input type="number" value=1 id="minX"><br>
-		  Upper X boundry: <input type="number" value=20000 id="maxX">
-		  <br>
+		  Upper X boundry: <input type="number" value=20000 id="maxX"><br>
 		  Lower Y boundry: <input type="number" value=1 id="minY"><br>
 		  Upper Y boundry: <input type="number" value=1000000 id="maxY"><br>
-		  <br>
-		  Type of X axis("log" or "linear"; without quotes,case sensitive): <input type="text" value="linear" id="xType"><br>
-		  Type of Y axis("log" or "linear"; without quotes,case sensitive): <input type="text" value="log" id="yType"><br>
+		  Type of X axis:
+		  <select id="xType">
+		    <option value="linear" selected>linear</option>
+		    <option value="log">log</option>
+		  </select>
+		  Type of Y axis:
+		  <select id="yType">
+		    <option value="linear">linear</option>
+		    <option value="log" selected>log</option>
+		  </select>
+		  Width of plot: <input type="number" value=1250 id="plotWidth">
+		  Height of plot: <input type="number" value=750 id="plotHeight">
 		  <input type="button" value="Update Axes" id ="updateAxesButton">
 		  Use Max Values <input type="checkbox" id = "UseMaxValues">
 		</form>
@@ -50,8 +56,8 @@
 		<script type="text/javascript">
 
 			//Width and height
-			var w = 1250;
-			var h = 800;
+			var w= d3.select("#plotWidth").property("value");
+			var h= d3.select("#plotHeight").property("value");;
 			var padding = 80;
 			
 			var xAxis = d3.svg.axis()
@@ -70,13 +76,12 @@
 			var lowerYBoundry
 			var upperYBoundry
 			
-			var sampePathAllData
-			var matchTest = 0
 			
 			var svg = d3.select("body")
 				.append("svg")
 				.attr("width", w)
-				.attr("height", h);			
+				.attr("height", h);		
+					
 			//Create X axis
 			svg.append("g")
 				.attr("class", "x axis")
@@ -123,6 +128,19 @@
 				 .attr("height", h-2*padding);
 				 
 			var visualizeXY = function() {
+				w = d3.select("#plotWidth").property("value");
+				h = d3.select("#plotHeight").property("value");
+				
+				svg.attr("width", w)
+					.attr("height", h);
+					
+				svg.select("#chart-area")
+					 .select("rect")
+					 .attr("x", padding)
+					 .attr("y", padding)
+					 .attr("width", w-2*padding)
+					 .attr("height", h-2*padding);
+				
 				svg.selectAll("circle")
 					.remove()
 
@@ -151,7 +169,7 @@
 				
 				for (var i = 0; i < currentData.length; i++) {
 				    currentData[i].keyVal = i;
-				}
+				} 
 				
 				xScale.domain([lowerXBoundry, upperXBoundry])
 					.range([padding, w - padding]);
@@ -196,18 +214,24 @@
 
 				//Create X axis
 				svg.select(".x.axis")
+					.attr("transform", "translate(0," + (h - padding) + ")")
 					.call(xAxis);
 					
 				//Label x-Axis
 				svg.select(".xAxisLabel")
+					.attr("y", h-padding/2)
+					.attr("x",w/2)
 					.text(xColumnHeader);
 
 				//Create Y axis
 				svg.select(".y.axis")
+					.attr("transform", "translate(" + padding + ",0)")
 					.call(yAxis);
 					
 				//Label y-Axis
 				svg.select(".yAxisLabel")
+					.attr("y", padding/2)
+					.attr("x", 0-h/2)
 					.text(yColumnHeader);
 
 				//Add Title
@@ -279,18 +303,22 @@
                         						
 					if (xAxisType == "log") {
 						xScale=d3.scale.log();	
-					}
-					
+					}					
 					if (xAxisType == "linear") {
 						xScale=d3.scale.linear();	
+					}
+					if (xAxisType == "ordinal") {
+						xScale=d3.scale.ordinal();	
 					}
 					
 					if (yAxisType == "log") {
 						yScale=d3.scale.log();	
-					}
-					
+					}					
 					if (yAxisType == "linear") {
 						yScale=d3.scale.linear();	
+					}
+					if (yAxisType == "ordinal") {
+						yScale=d3.scale.ordinal();	
 					}
 										
 					
